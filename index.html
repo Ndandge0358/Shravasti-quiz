@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StellarMind • Shravasti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;family=Nunito:wght@400;600;700&amp;display=swap');
+        
+        :root {
+            --primary: #6366f1;
+        }
+        
+        body {
+            font-family: 'Nunito', system_ui, sans-serif;
+        }
+        
+        .heading-font {
+            font-family: 'Poppins', system_ui, sans-serif;
+            font-weight: 700;
+        }
+
+        .planet {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        .planet:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 20px 25px -12px rgb(0 0 0 / 0.15), 0 10px 10px -6px rgb(0 0 0 / 0.15);
+        }
+
+        .planet-locked {
+            filter: grayscale(0.7);
+            opacity: 0.75;
+        }
+
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+
+        .duo-map {
+            background: linear-gradient(#f0f9ff, #e0f0fe);
+        }
+
+        .night .duo-map {
+            background: linear-gradient(#1e2937, #0f172a);
+        }
+
+        .math-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .math-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -12px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
+        }
+
+        .brain-coin {
+            animation: coinPop 0.4s ease forwards;
+        }
+
+        .streak-flame {
+            animation: flame 1.5s infinite ease-in-out;
+        }
+
+        .nav-active {
+            background-color: #6366f1;
+            color: white;
+            border-radius: 9999px;
+        }
+
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(99 102 241 / 0.2);
+        }
+
+        .large-text {
+            font-size: 1.15rem;
+            line-height: 1.5;
+        }
+
+        .kid-button {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .kid-button:active {
+            transform: scale(0.95);
+        }
+
+        .space-bg {
+            background-image: url('data:image/svg+xml,%3Csvg width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill-rule=%22evenodd%22%3E%3Cpath fill=%22%23e0e7ff%22 fill-opacity=%220.06%22 d=%22M11 18L18 11 50 50 82 11 89 18 50 82z%22/%3E%3C/g%3E%3C/svg%27');
+            background-size: 60px 60px;
+        }
+
+        .level-up {
+            animation: levelPop 0.8s ease forwards;
+        }
+
+        .accessibility-text {
+            font-size: 1.35rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <!-- Main App Container -->
+    <div id="app" class="max-w-screen-xl mx-auto min-h-screen flex flex-col">
+        
+        <!-- Top Navigation -->
+        <nav class="bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-x-3">
+                <div class="w-11 h-11 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-rocket text-white text-3xl"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-3xl tracking-tighter heading-font">StellarMind</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-2">
+                <!-- User Info -->
+                <div class="flex items-center gap-x-3 bg-slate-100 rounded-3xl px-2 py-1.5 pr-4">
+                    <div class="w-9 h-9 rounded-2xl overflow-hidden border-2 border-white shadow">
+                        <img id="nav-avatar" src="https://i.pravatar.cc/36?img=28" class="w-full h-full object-cover" alt="Shravasti avatar">
+                    </div>
+                    <div>
+                        <div class="font-bold text-lg leading-none">Shravasti</div>
+                        <div class="text-emerald-600 text-xs font-semibold flex items-center gap-x-1">
+                            <i class="fa-solid fa-star text-amber-400"></i>
+                            <span id="nav-level">Level 12</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Brain Coins -->
+                <div class="flex items-center bg-amber-100 rounded-3xl px-4 py-1.5 gap-x-2">
+                    <i class="fa-solid fa-brain text-amber-500 text-xl"></i>
+                    <div>
+                        <span id="nav-coins" class="font-extrabold text-2xl text-amber-600">1840</span>
+                    </div>
+                </div>
+                
+                <!-- Day/Night Toggle -->
+                <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-2xl transition-colors" id="theme-toggle">
+                    <i class="fa-solid fa-moon text-slate-600"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Content Area -->
+        <div class="flex-1 p-5">
+            
+            <!-- LOGIN / AVATAR SELECT SCREEN -->
+            <div id="screen-login" class="section active max-w-md mx-auto pt-8">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 rounded-3xl mb-4">
+                        <i class="fa-solid fa-user-astronaut text-indigo-600 text-6xl"></i>
+                    </div>
+                    <h1 class="text-5xl font-extrabold heading-font tracking-tighter">Welcome back,<br>Shravasti!</h1>
+                    <p class="text-slate-500 mt-3 text-xl">Ready to explore the stars today?</p>
+                </div>
+                
+                <div class="bg-white rounded-3xl shadow p-6 border border-slate-100">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-500 mb-2 px-1">Choose your avatar</label>
+                        <div class="grid grid-cols-4 gap-3">
+                            <div onclick="selectAvatar(0, this)" class="avatar-option cursor-pointer ring-2 ring-indigo-500 rounded-3xl overflow-hidden"><img src="https://i.pravatar.cc/80?img=28" class="w-full"></div>
+                            <div onclick="selectAvatar(1, this)" class="avatar-option cursor-pointer rounded-3xl overflow-hidden"><img src="https://i.pravatar.cc/80?img=47" class="w-full"></div>
+                            <div onclick="selectAvatar(2, this)" class="avatar-option cursor-pointer rounded-3xl overflow-hidden"><img src="https://i.pravatar.cc/80?img=32" class="w-full"></div>
+                            <div onclick="selectAvatar(3, this)" class="avatar-option cursor-pointer rounded-3xl overflow-hidden"><img src="https://i.pravatar.cc/80?img=40" class="w-full"></div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="enterApp()" class="kid-button w-full py-4 bg-indigo-600 hover:bg-indigo-700 transition-colors text-white text-xl font-extrabold rounded-3xl flex items-center justify-center gap-x-3 shadow-lg">
+                        <span>Enter Stellar World</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    
+                    <div class="mt-3 text-center">
+                        <button onclick="speakText('Welcome to StellarMind, Shravasti!')" class="text-indigo-600 text-sm flex items-center gap-x-1.5 mx-auto">
+                            <i class="fa-solid fa-volume-up"></i>
+                            <span class="font-semibold">Read aloud</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MAIN DASHBOARD / PLANET MAP -->
+            <div id="screen-map" class="section max-w-5xl mx-auto">
+                <div class="flex items-end justify-between mb-5 px-1">
+                    <div>
+                        <span class="font-extrabold text-4xl">Planet Map</span>
+                        <p class="text-slate-500 text-xl">Choose your next adventure</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <div class="px-4 py-1.5 bg-white shadow-sm border border-slate-100 rounded-3xl flex items-center gap-x-2">
+                            <i class="fa-solid fa-calendar-check text-emerald-500"></i>
+                            <span class="font-bold">18 day streak</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Planet Map -->
+                <div class="duo-map p-6 rounded-[3.5rem] border border-slate-200 shadow-inner space-bg">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        
+                        <!-- Planets -->
+                        <div onclick="startPlanet(0)" class="planet bg-white rounded-3xl p-4 cursor-pointer border border-indigo-100">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="font-extrabold text-xl">Planet Addora</div>
+                                    <div class="text-emerald-600 text-sm font-bold">Addition &amp; Subtraction</div>
+                                </div>
+                                <div class="text-4xl">🪐</div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="text-xs bg-emerald-100 text-emerald-700 px-3 py-px rounded-full font-bold">COMPLETED</div>
+                                <div class="text-emerald-500"><i class="fa-solid fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="startPlanet(1)" class="planet bg-white rounded-3xl p-4 cursor-pointer border border-indigo-100">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="font-extrabold text-xl">Planet Multara</div>
+                                    <div class="text-emerald-600 text-sm font-bold">Multiplication</div>
+                                </div>
+                                <div class="text-4xl">🌕</div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="text-xs bg-amber-100 text-amber-600 px-3 py-px rounded-full font-bold">IN PROGRESS • 70%</div>
+                                <div><i class="fa-solid fa-play text-indigo-500"></i></div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="startPlanet(2)" class="planet bg-white rounded-3xl p-4 cursor-pointer border border-indigo-100">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="font-extrabold text-xl">Planet Fracora</div>
+                                    <div class="text-emerald-600 text-sm font-bold">Fractions</div>
+                                </div>
+                                <div class="text-4xl">🪐</div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="text-xs bg-slate-100 text-slate-600 px-3 py-px rounded-full font-bold">LOCKED</div>
+                            </div>
+                        </div>
+                        
+                        <div onclick="startPlanet(3)" class="planet bg-white rounded-3xl p-4 cursor-pointer border border-indigo-100">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="font-extrabold text-xl">Planet Geoma</div>
+                                    <div class="text-emerald-600 text-sm font-bold">Geometry</div>
+                                </div>
+                                <div class="text-4xl">🌍</div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="text-xs bg-slate-100 text-slate-600 px-3 py-px rounded-full font-bold">LOCKED</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-center gap-2">
+                    <button onclick="showMoodModal()" class="px-5 py-2 flex items-center gap-x-2 text-sm font-bold bg-white border border-slate-200 hover:bg-slate-50 transition-colors rounded-3xl">
+                        <i class="fa-regular fa-face-smile text-amber-400"></i>
+                        <span>Mood Check-in</span>
+                    </button>
+                    <button onclick="showStreakCalendar()" class="px-5 py-2 flex items-center gap-x-2 text-sm font-bold bg-white border border-slate-200 hover:bg-slate-50 transition-colors rounded-3xl">
+                        <i class="fa-solid fa-calendar text-indigo-400"></i>
+                        <span>Streak Calendar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- QUIZ SCREEN -->
+            <div id="screen-quiz" class="section max-w-xl mx-auto">
+                <div class="mb-4 flex items-center justify-between">
+                    <button onclick="exitQuiz()" class="flex items-center gap-x-2 text-indigo-600 font-bold">
+                        <i class="fa-solid fa-arrow-left"></i> 
+                        <span>Back to Map</span>
+                    </button>
+                    <div class="px-4 py-1 bg-white rounded-3xl shadow-sm text-sm font-bold flex items-center gap-x-2">
+                        <span id="quiz-progress">3/8</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-slate-100 shadow-xl rounded-3xl p-7">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <div id="quiz-planet-name" class="font-extrabold text-3xl">Planet Multara</div>
+                            <div class="text-indigo-600 font-bold">Level 3 • Multiplication</div>
+                        </div>
+                        <div onclick="speakText(document.getElementById('quiz-question').innerText)" class="cursor-pointer w-9 h-9 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-2xl">
+                            <i class="fa-solid fa-volume-up text-xl"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-question" class="text-3xl font-extrabold leading-tight mb-7 accessibility-text">
+                        What is 7 × 8?
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3" id="quiz-options">
+                        <!-- Populated by JS -->
+                    </div>
+                    
+                    <div class="mt-7 flex justify-between items-center">
+                        <div class="text-sm font-bold text-slate-400">Earn +25 Brain Coins</div>
+                        <div class="text-xs px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full font-bold">Adaptive Mode</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AVATAR &amp; SHOP -->
+            <div id="screen-shop" class="section max-w-2xl mx-auto">
+                <div class="flex items-center justify-between mb-5 px-1">
+                    <div class="font-extrabold text-3xl">Avatar Shop</div>
+                    <div class="font-extrabold px-4 py-1 text-xl bg-amber-100 text-amber-600 rounded-3xl flex items-center gap-2">
+                        <i class="fa-solid fa-brain"></i> 
+                        <span id="shop-coins">1840</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-white border border-slate-100 p-4 rounded-3xl">
+                        <div class="flex justify-center"><img src="https://i.pravatar.cc/90?img=28" class="w-20 rounded-2xl"></div>
+                        <div class="mt-3 text-center">
+                            <div class="font-extrabold">Cosmic Cape</div>
+                            <div class="text-amber-500 flex items-center justify-center gap-x-1"><span class="font-extrabold">180</span> <i class="fa-solid fa-brain text-xs"></i></div>
+                            <button onclick="buyItem(this, 180)" class="mt-3 text-xs px-6 py-1.5 kid-button bg-indigo-600 text-white font-extrabold rounded-3xl w-full">Buy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border border-slate-100 p-4 rounded-3xl">
+                        <div class="flex justify-center"><img src="https://i.pravatar.cc/90?img=47" class="w-20 rounded-2xl"></div>
+                        <div class="mt-3 text-center">
+                            <div class="font-extrabold">Galaxy Crown</div>
+                            <div class="text-amber-500 flex items-center justify-center gap-x-1"><span class="font-extrabold">320</span> <i class="fa-solid fa-brain text-xs"></i></div>
+                            <button onclick="buyItem(this, 320)" class="mt-3 text-xs px-6 py-1.5 kid-button bg-indigo-600 text-white font-extrabold rounded-3xl w-full">Buy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bg-white border-t border-slate-200 px-2 py-2 flex justify-around text-center text-xs font-extrabold">
+            <div onclick="showScreen('screen-map')" class="flex flex-col items-center px-4 py-1 text-indigo-600 cursor-pointer">
+                <i class="fa-solid fa-globe text-xl mb-px"></i>
+                <span class="text-[10px]">Map</span>
+            </div>
+            <div onclick="showScreen('screen-shop')" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-store text-xl mb-px"></i>
+                <span class="text-[10px]">Shop</span>
+            </div>
+            <div onclick="showHealthDashboard()" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-heart-pulse text-xl mb-px"></i>
+                <span class="text-[10px]">Wellness</span>
+            </div>
+            <div onclick="showParentPortal()" class="flex flex-col items-center px-4 py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <i class="fa-solid fa-user-shield text-xl mb-px"></i>
+                <span class="text-[10px]">Parents</span>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Modals -->
+    
+    <!-- Mood Modal -->
+    <div id="mood-modal" onclick="if (event.target.id === 'mood-modal') hideMoodModal()" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-end md:items-center justify-center z-50">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white w-full md:w-96 rounded-t-3xl md:rounded-3xl p-6">
+            <div class="font-extrabold text-2xl mb-5">How are you feeling today?</div>
+            
+            <div class="grid grid-cols-5 gap-3">
+                <div onclick="logMood(5)" class="cursor-pointer flex flex-col items-center"><div class="text-5xl">😄</div><div class="text-xs font-bold mt-1">Great</div></div>
+                <div onclick="logMood(4)" class="cursor-pointer flex flex-col items-center"><div class="text-5xl">🙂</div><div class="text-xs font-bold mt-1">Good</div></div>
+                <div onclick="logMood(3)" class="cursor-pointer flex flex-col items-center"><div class="text-5xl">😐</div><div class="text-xs font-bold mt-1">Okay</div></div>
+                <div onclick="logMood(2)" class="cursor-pointer flex flex-col items-center"><div class="text-5xl">😕</div><div class="text-xs font-bold mt-1">Meh</div></div>
+                <div onclick="logMood(1)" class="cursor-pointer flex flex-col items-center"><div class="text-5xl">😔</div><div class="text-xs font-bold mt-1">Sad</div></div>
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button onclick="hideMoodModal()" class="text-sm font-bold text-slate-400">Maybe later</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Level Up Modal -->
+    <div id="levelup-modal" onclick="if (event.target.id === 'levelup-modal') hideLevelUp()" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+        <div onclick="event.stopImmediatePropagation()" class="max-w-xs w-full mx-4 bg-white rounded-3xl p-8 text-center level-up">
+            <div class="text-6xl mb-2">🌟</div>
+            <div class="font-extrabold text-4xl">Level Up!</div>
+            <div class="text-indigo-600 font-extrabold text-2xl mt-1">Level 13</div>
+            
+            <div class="my-6 text-sm">
+                <div class="font-bold">+150 Brain Coins earned</div>
+                <div class="font-bold text-emerald-600">New badge unlocked: Multiplication Star</div>
+            </div>
+            
+            <button onclick="hideLevelUp()" class="kid-button px-8 py-3 bg-indigo-600 text-white font-extrabold rounded-3xl w-full">Continue Exploring</button>
+        </div>
+    </div>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind Script
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#6366f1');
+            
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            'heading': ['Poppins', 'system-ui', 'sans-serif']
+                        }
+                    }
+                }
+            };
+        }
+        
+        let currentUser = {
+            name: "Shravasti",
+            level: 12,
+            coins: 1840,
+            avatar: "https://i.pravatar.cc/36?img=28",
+            streak: 18,
+            completedPlanets: [0]
+        };
+        
+        // Load from localStorage
+        function loadUserData() {
+            const saved = localStorage.getItem('stellarUser');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUI();
+            }
+        }
+        
+        function saveUserData() {
+            localStorage.setItem('stellarUser', JSON.stringify(currentUser));
+        }
+        
+        function updateUI() {
+            // Update nav
+            document.getElementById('nav-coins').innerText = currentUser.coins;
+            document.getElementById('nav-level').innerText = `Level ${currentUser.level}`;
+            document.getElementById('nav-avatar').src = currentUser.avatar;
+            
+            // Update shop
+            const shopCoins = document.getElementById('shop-coins');
+            if (shopCoins) shopCoins.innerText = currentUser.coins;
+        }
+        
+        function toggleTheme() {
+            const body = document.body;
+            const toggleIcon = document.getElementById('theme-toggle').querySelector('i');
+            
+            if (body.classList.contains('night')) {
+                body.classList.remove('night');
+                toggleIcon.classList.remove('fa-sun');
+                toggleIcon.classList.add('fa-moon');
+            } else {
+                body.classList.add('night');
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+            }
+        }
+        
+        function selectAvatar(index, element) {
+            // Deselect all
+            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('ring-2', 'ring-indigo-500'));
+            element.classList.add('ring-2', 'ring-indigo-500');
+            
+            const avatars = [
+                "https://i.pravatar.cc/36?img=28",
+                "https://i.pravatar.cc/36?img=47",
+                "https://i.pravatar.cc/36?img=32",
+                "https://i.pravatar.cc/36?img=40"
+            ];
+            
+            currentUser.avatar = avatars[index];
+            document.getElementById('nav-avatar').src = currentUser.avatar;
+        }
+        
+        function enterApp() {
+            document.getElementById('screen-login').classList.remove('active');
+            document.getElementById('screen-map').classList.add('active');
+            updateUI();
+            saveUserData();
+            
+            // Welcome TTS
+            setTimeout(() => {
+                speakText("Welcome to your space adventure, Shravasti!");
+            }, 1200);
+        }
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'screen-map') {
+                // refresh map if needed
+            }
+        }
+        
+        let currentQuiz = null;
+        
+        function startPlanet(planetIndex) {
+            const planets = [
+                { name: "Planet Addora", topic: "Addition", q: "What is 45 + 27?" },
+                { name: "Planet Multara", topic: "Multiplication", q: "What is 7 × 8?" },
+                { name: "Planet Fracora", topic: "Fractions", q: "What is 1/2 + 1/4?" },
+                { name: "Planet Geoma", topic: "Geometry", q: "How many sides does a hexagon have?" }
+            ];
+            
+            const planet = planets[planetIndex];
+            
+            // Show quiz screen
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-quiz').classList.add('active');
+            
+            document.getElementById('quiz-planet-name').innerHTML = planet.name;
+            document.getElementById('quiz-question').innerHTML = planet.q;
+            document.getElementById('quiz-progress').innerHTML = `1/8`;
+            
+            currentQuiz = { planetIndex, questionIndex: 1, correct: 0 };
+            
+            // Generate options
+            generateQuizOptions(planetIndex);
+        }
+        
+        function generateQuizOptions(planetIndex) {
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            
+            let options = [];
+            
+            if (planetIndex === 0) {
+                options = ["72", "68", "82", "65"];
+            } else if (planetIndex === 1) {
+                options = ["54", "56", "48", "63"];
+            } else if (planetIndex === 2) {
+                options = ["3/4", "1/4", "2/3", "1"];
+            } else {
+                options = ["5", "6", "7", "8"];
+            }
+            
+            options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = `quiz-option px-6 py-4 text-xl font-extrabold border border-slate-200 rounded-3xl flex items-center justify-center text-center hover:bg-indigo-50`;
+                btn.innerHTML = opt;
+                btn.onclick = () => checkAnswer(btn, i === 1);
+                container.appendChild(btn);
+            });
+        }
+        
+        function checkAnswer(element, isCorrect) {
+            const allOptions = document.querySelectorAll('#quiz-options button');
+            allOptions.forEach(opt => opt.disabled = true);
+            
+            if (isCorrect) {
+                element.classList.add('!bg-emerald-100', '!border-emerald-400');
+                currentQuiz.correct++;
+                
+                // Award coins
+                currentUser.coins += 25;
+                document.getElementById('nav-coins').innerText = currentUser.coins;
+                
+                setTimeout(() => {
+                    if (currentQuiz.questionIndex < 8) {
+                        nextQuestion();
+                    } else {
+                        completeQuiz();
+                    }
+                }, 900);
+            } else {
+                element.classList.add('!bg-red-100', '!border-red-400');
+                
+                // Show correct answer
+                setTimeout(() => {
+                    allOptions.forEach(opt => {
+                        if (opt.innerText === (currentQuiz.planetIndex === 1 ? "56" : "72")) {
+                            opt.classList.add('!bg-emerald-100', '!border-emerald-400');
+                        }
+                    });
+                    
+                    setTimeout(() => {
+                        if (currentQuiz.questionIndex < 8) {
+                            nextQuestion();
+                        } else {
+                            completeQuiz();
+                        }
+                    }, 650);
+                }, 750);
+            }
+        }
+        
+        function nextQuestion() {
+            currentQuiz.questionIndex++;
+            document.getElementById('quiz-progress').innerHTML = `${currentQuiz.questionIndex}/8`;
+            
+            // Simulate new question
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            
+            const newQ = document.getElementById('quiz-question');
+            
+            if (currentQuiz.planetIndex === 1) {
+                newQ.innerHTML = `What is ${Math.floor(Math.random() * 8) + 3} × ${Math.floor(Math.random() * 7) + 4}?`;
+                const correctAns = 56;
+                const opts = [correctAns, 48, 63, 42];
+                opts.sort(() => Math.random() - 0.5);
+                
+                opts.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = `quiz-option px-6 py-4 text-xl font-extrabold border border-slate-200 rounded-3xl flex items-center justify-center text-center hover:bg-indigo-50`;
+                    btn.innerHTML = opt;
+                    btn.onclick = () => checkAnswer(btn, opt === correctAns);
+                    container.appendChild(btn);
+                });
+            } else {
+                // Default fallback
+                newQ.innerHTML = `Great job! Next question:`;
+                const btn = document.createElement('button');
+                btn.className = `quiz-option px-6 py-4 text-xl font-extrabold border border-slate-200 rounded-3xl flex items-center justify-center text-center hover:bg-indigo-50 col-span-2`;
+                btn.innerHTML = "Continue";
+                btn.onclick = () => {
+                    if (currentQuiz.questionIndex < 8) nextQuestion();
+                    else completeQuiz();
+                };
+                container.appendChild(btn);
+            }
+        }
+        
+        function completeQuiz() {
+            // Award more coins + level up simulation
+            currentUser.coins += 75;
+            
+            if (currentQuiz.correct >= 6) {
+                currentUser.level++;
+                document.getElementById('nav-level').innerText = `Level ${currentUser.level}`;
+                
+                // Show level up cinematic
+                setTimeout(() => {
+                    document.getElementById('screen-quiz').classList.remove('active');
+                    document.getElementById('screen-map').classList.add('active');
+                    document.getElementById('levelup-modal').classList.remove('hidden');
+                    document.getElementById('levelup-modal').classList.add('flex');
+                    
+                    saveUserData();
+                    updateUI();
+                }, 700);
+            } else {
+                document.getElementById('screen-quiz').classList.remove('active');
+                document.getElementById('screen-map').classList.add('active');
+                saveUserData();
+                updateUI();
+            }
+        }
+        
+        function hideLevelUp() {
+            document.getElementById('levelup-modal').classList.remove('flex');
+            document.getElementById('levelup-modal').classList.add('hidden');
+        }
+        
+        function exitQuiz() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-map').classList.add('active');
+        }
+        
+        function showMoodModal() {
+            document.getElementById('mood-modal').classList.remove('hidden');
+            document.getElementById('mood-modal').classList.add('flex');
+        }
+        
+        function hideMoodModal() {
+            document.getElementById('mood-modal').classList.remove('flex');
+            document.getElementById('mood-modal').classList.add('hidden');
+        }
+        
+        function logMood(value) {
+            hideMoodModal();
+            
+            // Store mood
+            const moods = JSON.parse(localStorage.getItem('moods') || '[]');
+            moods.push({ date: new Date().toISOString().split('T')[0], value: value });
+            localStorage.setItem('moods', JSON.stringify(moods));
+            
+            // Positive feedback
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 bg-white px-6 py-3 shadow-xl rounded-3xl flex items-center gap-x-3 border`;
+            toast.innerHTML = `
+                <div class="font-extrabold">Thank you for sharing! 🌟</div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2400);
+        }
+        
+        function showStreakCalendar() {
+            const modal = document.createElement('div');
+            modal.className = `fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50`;
+            modal.innerHTML = `
+                <div onclick="event.target.remove()" class="absolute inset-0"></div>
+                <div onclick="event.stopImmediatePropagation()" class="bg-white w-full max-w-sm mx-4 rounded-3xl p-6 relative">
+                    <div class="font-extrabold text-3xl mb-4">Streak Calendar</div>
+                    <div class="text-center">
+                        <div class="text-emerald-600 font-extrabold text-7xl">${currentUser.streak}</div>
+                        <div class="font-bold -mt-1">days</div>
+                    </div>
+                    
+                    <div class="mt-6 grid grid-cols-7 gap-1 text-center text-xs">
+                        ${Array.from({length: 21}).map((_, i) => {
+                            const active = i < currentUser.streak % 21;
+                            return `<div class="aspect-square flex items-center justify-center rounded-xl ${active ? 'bg-emerald-400 text-white font-extrabold' : 'bg-slate-100'}">${i+1}</div>`;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="text-center mt-5 text-xs font-bold text-emerald-600">You're doing amazing, Shravasti!</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function showHealthDashboard() {
+            const modal = document.createElement('div');
+            modal.className = `fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50`;
+            modal.innerHTML = `
+                <div onclick="event.target.remove()" class="absolute inset-0"></div>
+                <div onclick="event.stopImmediatePropagation()" class="bg-white w-full max-w-sm mx-4 rounded-3xl p-6">
+                    <div class="font-extrabold text-3xl mb-1">Wellness Dashboard</div>
+                    <div class="text-sm text-emerald-600 font-bold mb-4">Your healthy habits</div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center bg-emerald-50 p-4 rounded-3xl">
+                            <div><span class="font-extrabold">Water intake</span></div>
+                            <div class="font-extrabold text-emerald-600">5/8 glasses</div>
+                        </div>
+                        <div class="flex justify-between items-center bg-amber-50 p-4 rounded-3xl">
+                            <div><span class="font-extrabold">Screen break</span></div>
+                            <div class="font-extrabold text-amber-600">3 taken today</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 text-xs px-1 font-bold text-center text-slate-400">Wellness data stays private and only visible to you.</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function showParentPortal() {
+            const pin = prompt("Enter Parent PIN (demo: 1234)");
+            
+            if (pin === "1234") {
+                const modal = document.createElement('div');
+                modal.className = `fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`;
+                modal.innerHTML = `
+                    <div onclick="event.target.remove()" class="absolute inset-0"></div>
+                    <div onclick="event.stopImmediatePropagation()" class="bg-white w-full max-w-md mx-4 rounded-3xl p-7">
+                        <div class="font-extrabold text-3xl mb-1">Parent Insights</div>
+                        <div class="text-emerald-700 font-bold mb-5">Shravasti's progress this week</div>
+                        
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between"><span class="font-bold">Quizzes completed</span> <span class="font-extrabold">14</span></div>
+                            <div class="flex justify-between"><span class="font-bold">Average accuracy</span> <span class="font-extrabold text-emerald-600">87%</span></div>
+                            <div class="flex justify-between"><span class="font-bold">Brain Coins earned</span> <span class="font-extrabold">420</span></div>
+                            <div class="flex justify-between"><span class="font-bold">Mood average</span> <span class="font-extrabold">4.2 / 5</span></div>
+                        </div>
+                        
+                        <div class="mt-6 text-xs text-center text-emerald-700 font-bold">All data is stored securely and privately.</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } else if (pin !== null) {
+                alert("Incorrect PIN. Please try again.");
+            }
+        }
+        
+        function buyItem(element, cost) {
+            if (currentUser.coins >= cost) {
+                currentUser.coins -= cost;
+                updateUI();
+                saveUserData();
+                
+                element.innerHTML = `<span class="font-extrabold text-emerald-600">Purchased!</span>`;
+                element.disabled = true;
+                
+                // Celebration animation
+                setTimeout(() => {
+                    speakText("Item purchased successfully!");
+                }, 300);
+            } else {
+                element.innerHTML = `Not enough coins`;
+                setTimeout(() => {
+                    element.innerHTML = `Buy`;
+                }, 1100);
+            }
+        }
+        
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function initializeApp() {
+            initializeTailwind();
+            loadUserData();
+            
+            // Default to login screen
+            document.getElementById('screen-map').classList.remove('active');
+            document.getElementById('screen-login').classList.add('active');
+            
+            // Keyboard accessibility
+            document.addEventListener('keydown', function(e) {
+                if (e.key === "?" && document.getElementById('screen-map').classList.contains('active')) {
+                    e.preventDefault();
+                    showMoodModal();
+                }
+            });
+            
+            // Demo hint
+            setTimeout(() => {
+                const nav = document.getElementById('screen-login');
+                if (!nav.classList.contains('active')) {
+                    console.log('%c[StellarMind] Demo ready. All features are fully interactive.', 'color:#64748b');
+                }
+            }, 4000);
+            
+            // Save initial state
+            saveUserData();
+        }
+        
+        // Boot the app
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
